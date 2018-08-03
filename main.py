@@ -60,7 +60,7 @@ notice_attributes['Ajánlakérő:']['Ajánlatkérő fő tevényeségi köre:'] =
 #Tárgy
 notice_attributes['Tárgy'] ={}
 subject={}
-length_name_start= notice_page.find('II. szakasz: Tárgy')
+length_name_start= notice_page.find('II. szakasz:')
 length_name_end = notice_page.find('III. szakasz:')
 if length_name_end ==-1 :
     length_name_end = notice_page.find('IV. szakasz')
@@ -76,7 +76,13 @@ for dele in deleting:
         if dele in sc:
             subject_categories.remove(sc)
         
+for subject_category in subject_categories:
+    length_name_start= notice_page.find(subject_category)
+    length_name_end = notice_page[length_name_find:].find('"padding-left: 0px;"')    
+    sub_tree_string = notice_page[length_name_start:length_name_end]
+    parser = etree.HTMLParser()
+    sub_tree   = etree.parse(StringIO(sub_tree_string), parser)
+    subject_items = sub_tree.xpath('//div[@style="padding-left:0px;"]/span/text()')
+    subject[subject_category]=subject_items
 
-
-print(notice_attributes)
-print(subject_categories)
+print(subject)
