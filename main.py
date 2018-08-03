@@ -57,4 +57,26 @@ notice_attributes['Ajánlakérő:'] = contracting_authority
 notice_attributes['Ajánlakérő:']['Ajánlatkérő típusa:'] = notice_attributes['Ajánlatkérő típusa:']
 notice_attributes['Ajánlakérő:']['Ajánlatkérő fő tevényeségi köre:'] = notice_attributes['Ajánlatkérő fő tevényeségi köre:']
 
+#Tárgy
+notice_attributes['Tárgy'] ={}
+subject={}
+length_name_start= notice_page.find('II. szakasz: Tárgy')
+length_name_end = notice_page.find('III. szakasz:')
+if length_name_end ==-1 :
+    length_name_end = notice_page.find('IV. szakasz')
+
+sub_tree_string = notice_page[length_name_start:length_name_end]
+
+parser = etree.HTMLParser()
+sub_tree   = etree.parse(StringIO(sub_tree_string), parser)
+subject_categories = sub_tree.xpath('//div[@style="padding-left:0px;"]/text()')
+deleting = ['II.1)','II.2)']
+for dele in deleting:
+    for sc in subject_categories:
+        if dele in sc:
+            subject_categories.remove(sc)
+        
+
+
 print(notice_attributes)
+print(subject_categories)
