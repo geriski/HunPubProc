@@ -3,7 +3,7 @@ import requests
 from lxml import etree
 from io import StringIO, BytesIO
 
-link = 'http://www.kozbeszerzes.hu/adatbazis/megtekint/hirdetmeny/portal_9621_2018/'
+link = 'http://www.kozbeszerzes.hu/adatbazis/megtekint/hirdetmeny/portal_8621_2018/'
 notice_page = requests.get(link)
 tree = html.fromstring(notice_page.content)
 notice_attributes = {}
@@ -54,5 +54,7 @@ for contracting_authority_name in contracting_authority_names:
     tree_name_string = sub_tree_string[length_name_find+length_name_start+47:length_name_find+length_name_end]
     contracting_authority[contracting_authority_name] =  tree_name_string
 notice_attributes['Ajánlakérő:'] = contracting_authority
+notice_attributes['Ajánlakérő:']['Ajánlatkérő típusa:'] = notice_attributes['Ajánlatkérő típusa:']
+notice_attributes['Ajánlakérő:']['Ajánlatkérő fő tevényeségi köre:'] = notice_attributes['Ajánlatkérő fő tevényeségi köre:']
 
 print(notice_attributes)
