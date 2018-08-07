@@ -2,11 +2,13 @@ from lxml import html
 import requests
 from lxml import etree
 from io import StringIO, BytesIO
+import json
 
 link = 'http://www.kozbeszerzes.hu/adatbazis/megtekint/hirdetmeny/portal_8621_2018/'
 notice_page = requests.get(link)
 tree = html.fromstring(notice_page.content)
 notice_attributes = {}
+notice_attributes_all = {}
 notice_page = (notice_page.content).decode('utf-8')
 
 notice_table_names = tree.xpath('//table[@class="notice__heading"]/tr/th/text()')
@@ -56,9 +58,11 @@ for contracting_authority_name in contracting_authority_names:
 notice_attributes['Ajánlakérő:'] = contracting_authority
 notice_attributes['Ajánlakérő:']['Ajánlatkérő típusa:'] = notice_attributes['Ajánlatkérő típusa:']
 notice_attributes['Ajánlakérő:']['Ajánlatkérő fő tevényeségi köre:'] = notice_attributes['Ajánlatkérő fő tevényeségi köre:']
+notice_attributes_all['Alap adatok'] = notice_attributes
+
 
 #Tárgy
-notice_attributes['Tárgy'] ={}
+
 subject={}
 length_name_start= notice_page.find('II. szakasz:')
 length_name_end = notice_page.find('III. szakasz:')
@@ -91,9 +95,9 @@ for subject_category in subject_categories:
     subject_items = sub_tree.xpath('//span[@style="font-weight:200;color: #336699;"]/text()')
     subject[subject_category]=subject_items
 
-notice_attributes['Tárgy']= subject
+notice_attributes_all['Tárgy']= subject
 #eredmény
-notice_attributes['Eredmény'] ={}
+notice_attributes_all['Eredmény'] ={}
 
 #megkötés dátuma
 length_name_start= notice_page.find('V.2.1) A szerződés megkötésének dátuma')
@@ -103,7 +107,7 @@ parser = etree.HTMLParser()
 sub_tree   = etree.parse(StringIO(sub_tree_string), parser)
 result_items = sub_tree.xpath('//span[@style="font-weight:200;color: #336699;"]/text()')
 result_date = result_items[0]
-notice_attributes['Eredmény']['Szerződés megkötés dátuma']= result_date
+notice_attributes_all['Eredmény']['Szerződés megkötés dátuma']= result_date
 
 #nyertes
 result_contractor_attrib = {}
@@ -130,6 +134,12 @@ for result_category in result_categories:
     except IndexError:
       result_contractor_attrib[result_category] = None
       
-notice_attributes['Nyertes'] = result_contractor_attrib
+notice_attributes_all['Nyertes'] = result_contractor_attrib
 
-print(notice_attributes)
+print(notice_attributes_all)
+#export
+
+json = json.dumps(notice_attributes_all,  indent=4, ensure_ascii=False)
+f = open("dict.json","w")
+f.write(json)
+f.close()
