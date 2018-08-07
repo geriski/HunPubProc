@@ -91,4 +91,45 @@ for subject_category in subject_categories:
     subject_items = sub_tree.xpath('//span[@style="font-weight:200;color: #336699;"]/text()')
     subject[subject_category]=subject_items
 
-print(subject)
+notice_attributes['Tárgy']= subject
+#eredmény
+notice_attributes['Eredmény'] ={}
+
+#megkötés dátuma
+length_name_start= notice_page.find('V.2.1) A szerződés megkötésének dátuma')
+length_name_end = notice_page.find('V.2.2) Ajánlatokra vonatkozó információk')
+sub_tree_string = notice_page[length_name_start:length_name_end]
+parser = etree.HTMLParser()
+sub_tree   = etree.parse(StringIO(sub_tree_string), parser)
+result_items = sub_tree.xpath('//span[@style="font-weight:200;color: #336699;"]/text()')
+result_date = result_items[0]
+notice_attributes['Eredmény']['Szerződés megkötés dátuma']= result_date
+
+#nyertes
+result_contractor_attrib = {}
+length_name_start= notice_page.find('V.2.3) A nyertes ajánlattevő neve és címe')
+length_name_end = notice_page.find('V.2.4) A szerződés/rész')
+sub_tree_string = notice_page[length_name_start:length_name_end]
+parser = etree.HTMLParser()
+sub_tree   = etree.parse(StringIO(sub_tree_string), parser)
+result_categories = sub_tree.xpath('//div[@style="padding-left:2em;"]/text()')
+
+for result_category in result_categories:
+    length_name_start= sub_tree_string.find(result_category)
+    try:
+      length_name_end = sub_tree_string.find(result_categories[result_categories.index(result_category)+1])
+    except IndexError:
+      length_name_end = sub_tree_string.find('V.2.4) A szerződés/rész')
+
+    subsub_tree_string = sub_tree_string[length_name_start:length_name_end]
+    parser = etree.HTMLParser()
+    subsub_tree   = etree.parse(StringIO(subsub_tree_string), parser)
+    result_items = subsub_tree.xpath('//span[@style="font-weight:200;color: #336699;"]/text()')
+    try:
+      result_contractor_attrib[result_category]=result_items[0]
+    except IndexError:
+      result_contractor_attrib[result_category] = None
+      
+notice_attributes['Nyertes'] = result_contractor_attrib
+
+print(notice_attributes)
