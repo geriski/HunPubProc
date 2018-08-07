@@ -78,11 +78,17 @@ for dele in deleting:
         
 for subject_category in subject_categories:
     length_name_start= notice_page.find(subject_category)
-    length_name_end = notice_page[length_name_find:].find('"padding-left: 0px;"')    
+    try:
+      length_name_end = notice_page.find(subject_categories[subject_categories.index(subject_category)+1])
+    except IndexError:
+      length_name_end = notice_page.find('III. szakasz:')
+      if length_name_end ==-1 :
+        length_name_end = notice_page.find('IV. szakasz')
+        
     sub_tree_string = notice_page[length_name_start:length_name_end]
     parser = etree.HTMLParser()
     sub_tree   = etree.parse(StringIO(sub_tree_string), parser)
-    subject_items = sub_tree.xpath('//div[@style="padding-left:0px;"]/span/text()')
+    subject_items = sub_tree.xpath('//span[@style="font-weight:200;color: #336699;"]/text()')
     subject[subject_category]=subject_items
 
 print(subject)
