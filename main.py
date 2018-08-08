@@ -5,7 +5,7 @@ from io import StringIO, BytesIO
 import json
 link1= 'http://www.kozbeszerzes.hu/adatbazis/megtekint/hirdetmeny/portal_'
 pagelists=[]
-for num in range(1,20):
+for num in range(1,30):
     pagelists.append(str(link1) + str(num+5950) + '_2018/')
 print(pagelists)
 notice = {}
@@ -48,9 +48,11 @@ for link in pagelists:
                 notice_attributes[notice_table_name] =  tree_name_string
         if notice_attributes['Beszerzés tárgya:'] == 'Szolgáltatásmegrendelés' :
             continue
+        
+        notice_attributes_all.update(notice_attributes)
+        
         #Ajánlatkérő
         notice_attributes['Ajánlakérő:'] ={}
-        contracting_authority={}
         length_name_start= notice_page.find('I.1) Név és címek')
         length_name_end = notice_page.find('I.2) Közös közbeszerzés')
         if length_name_end ==-1 :
@@ -67,13 +69,8 @@ for link in pagelists:
             length_name_start= sub_tree_string[length_name_find:].find('<span')
             length_name_end = sub_tree_string[length_name_find:].find('</span>')
             tree_name_string = sub_tree_string[length_name_find+length_name_start+47:length_name_find+length_name_end]
-            contracting_authority[contracting_authority_name] =  tree_name_string
-        notice_attributes['Ajánlakérő:'] = contracting_authority
-        notice_attributes['Ajánlakérő:']['Ajánlatkérő típusa:'] = notice_attributes['Ajánlatkérő típusa:']
-        notice_attributes['Ajánlakérő:']['Ajánlatkérő fő tevényeségi köre:'] = notice_attributes['Ajánlatkérő fő tevényeségi köre:']
-        notice_attributes_all['Alap adatok'] = notice_attributes
-        
-        
+            notice_attributes_all['Ajánlatkérő/ ' + str(contracting_authority_name)] =  tree_name_string
+    
         #Tárgy
         
         subject={}
@@ -111,10 +108,8 @@ for link in pagelists:
             subject[subject_category]=subject_items
             #print(subject_category)
         
-        notice_attributes_all['Tárgy']= subject
-        #eredmény
-        notice_attributes_all['Eredmény'] ={}
-        
+        notice_attributes_all.update(subject)
+
         #megkötés dátuma
         if notice_page.find('V.2.1) A szerződés megkötésének dátuma') != -1:
           length_name_start= notice_page.find('V.2.1) A szerződés megkötésének dátuma')
@@ -126,9 +121,9 @@ for link in pagelists:
           try:
             result_date = result_items[0]
           except IndexError:
-            notice_attributes_all['Eredmény']['Szerződés megkötés dátuma'] = None
+            notice_attributes_all['Szerződés megkötés dátuma'] = None
           else:
-            notice_attributes_all['Eredmény']['Szerződés megkötés dátuma']= result_date
+            notice_attributes_all['Szerződés megkötés dátuma']= result_date
         
           #nyertes
           result_contractor_attrib = {}
@@ -152,21 +147,19 @@ for link in pagelists:
               subsub_tree   = etree.parse(StringIO(subsub_tree_string), parser)
               result_items = subsub_tree.xpath('//span[@style="font-weight:200;color: #336699;"]/text()')
               try:
-                result_contractor_attrib[result_category]=result_items[0]
+                result_contractor_attrib['Nyertes/ ' + str(result_category)]=result_items[0]
               except IndexError:
-                result_contractor_attrib[result_category] = None
+                result_contractor_attrib['Nyertes/ ' + str(result_category)] = None
                 
-          notice_attributes_all['Nyertes'] = result_contractor_attrib
+          notice_attributes_all.update(result_contractor_attrib)
         else:
-          notice_attributes_all['Eredmény']['Szerződés megkötés dátuma'] = None
+          notice_attributes_all['Szerződés megkötés dátuma'] = None
           notice_attributes_all['Nyertes'] = None
         notice[notice_attributes['Iktatószám:']] = notice_attributes_all
         print(notice_attributes['Iktatószám:'])
     else:
       continue
 print(notice.keys())
-#print(notice_attributes_all)
-#export
 
 json = json.dumps(notice,  indent=4, ensure_ascii=False)
 f = open("dict.json","w")
