@@ -3,11 +3,36 @@ import requests
 from lxml import etree
 from io import StringIO, BytesIO
 import json
+import pandas as pd
+import numpy as np
 link1= 'http://www.kozbeszerzes.hu/adatbazis/megtekint/hirdetmeny/portal_'
+
+id_list=[]
+#for num in range(1,3):
+#    pagelists.append(str(link1) + str(num+5950) + '_2018/')
+for numb in range(1,100):
+    id_list.append(str(numb+1310) + '/2018')
+
+#print(pagelists)
+
+# search for the new notices
+
+#load the database
+filename = 'dict.json'
+with open(filename) as f_obj:
+    notices_existing = json.load(f_obj)
+
+download_notices = []  
+for ids in id_list:
+    if ids in notices_existing.keys():
+        continue
+    else:
+        download_notices.append(ids)
+print('Downloading: ', download_notices )
 pagelists=[]
-for num in range(1,30):
-    pagelists.append(str(link1) + str(num+5950) + '_2018/')
-print(pagelists)
+for items in download_notices:
+    num= int(items[:items.find('/')])
+    pagelists.append(str(link1) + str(num) + '_2018/')
 notice = {}
 for link in pagelists:
     notice_page = requests.get(link)
@@ -48,7 +73,12 @@ for link in pagelists:
                 notice_attributes[notice_table_name] =  tree_name_string
         if notice_attributes['Beszerzés tárgya:'] == 'Szolgáltatásmegrendelés' :
             continue
-        
+        if 'Árubeszerzés' in notice_attributes['Beszerzés tárgya:']:
+            continue
+        if 'módosítás' in notice_attributes['Hirdetmény típusa:'] :
+            continue
+        if 'Bírósági határozat' in notice_attributes['Hirdetmény típusa:'] :
+            continue
         notice_attributes_all.update(notice_attributes)
         
         #Ajánlatkérő
@@ -59,7 +89,7 @@ for link in pagelists:
             length_name_end = notice_page.find('II. szakasz')
         sub_tree_string = notice_page[length_name_start:length_name_end]
         
-        print('Ajánlatkérő,60:', length_name_start, length_name_end)
+        #print('Ajánlatkérő,60:', length_name_start, length_name_end)
         
         parser = etree.HTMLParser()
         sub_tree   = etree.parse(StringIO(sub_tree_string), parser)
@@ -142,7 +172,7 @@ for link in pagelists:
                 length_name_end = 10
           
               subsub_tree_string = sub_tree_string[length_name_start:length_name_start+length_name_end]
-              print('nyertes,150:', length_name_start, length_name_end)
+              #print('nyertes,150:', length_name_start, length_name_end)
               parser = etree.HTMLParser()
               subsub_tree   = etree.parse(StringIO(subsub_tree_string), parser)
               result_items = subsub_tree.xpath('//span[@style="font-weight:200;color: #336699;"]/text()')
@@ -150,18 +180,27 @@ for link in pagelists:
                 result_contractor_attrib['Nyertes/ ' + str(result_category)]=result_items[0]
               except IndexError:
                 result_contractor_attrib['Nyertes/ ' + str(result_category)] = None
-                
+              notice_attributes_all['Nyertes'] = 'Volt'  
           notice_attributes_all.update(result_contractor_attrib)
         else:
           notice_attributes_all['Szerződés megkötés dátuma'] = None
           notice_attributes_all['Nyertes'] = None
         notice[notice_attributes['Iktatószám:']] = notice_attributes_all
-        print(notice_attributes['Iktatószám:'])
+        print('Ready to export: ', notice_attributes['Iktatószám:'])
     else:
       continue
-print(notice.keys())
+notices_existing.update(notice)
+print('All: ', notices_existing.keys())
 
-json = json.dumps(notice,  indent=4, ensure_ascii=False)
+#import to DataFrame
+Notices = pd.DataFrame.from_dict(notices_existing, orient='index')
+
+#export to csv
+
+Notices.to_csv(path_or_buf='notices.csv', sep='$')
+
+#export to json
+json = json.dumps(notices_existing,  indent=4)
 f = open("dict.json","w")
 f.write(json)
 f.close()
