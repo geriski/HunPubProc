@@ -10,8 +10,8 @@ link1= 'http://www.kozbeszerzes.hu/adatbazis/megtekint/hirdetmeny/portal_'
 id_list=[]
 #for num in range(1,3):
 #    pagelists.append(str(link1) + str(num+5950) + '_2018/')
-for numb in range(1,100):
-    id_list.append(str(numb+1310) + '/2018')
+for numb in range(1,300):
+    id_list.append(str(numb+2010) + '/2018')
 
 #print(pagelists)
 
@@ -78,6 +78,8 @@ for link in pagelists:
         if 'módosítás' in notice_attributes['Hirdetmény típusa:'] :
             continue
         if 'Bírósági határozat' in notice_attributes['Hirdetmény típusa:'] :
+            continue
+        if '2-es minta' in notice_attributes['Hirdetmény típusa:'] :
             continue
         notice_attributes_all.update(notice_attributes)
         
