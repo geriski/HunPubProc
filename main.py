@@ -10,8 +10,8 @@ link1= 'http://www.kozbeszerzes.hu/adatbazis/megtekint/hirdetmeny/portal_'
 id_list=[]
 #for num in range(1,3):
 #    pagelists.append(str(link1) + str(num+5950) + '_2018/')
-for numb in range(1,300):
-    id_list.append(str(numb+2010) + '/2018')
+for numb in range(1,500):
+    id_list.append(str(numb+3210) + '/2018')
 
 #print(pagelists)
 
