@@ -75,11 +75,13 @@ for link in pagelists:
             continue
         if 'Árubeszerzés' in notice_attributes['Beszerzés tárgya:']:
             continue
-        if 'módosítás' in notice_attributes['Hirdetmény típusa:'] :
+        if 'módosítás' in notice_attributes['Hirdetmény típusa:'].lower()  :
             continue
         if 'Bírósági határozat' in notice_attributes['Hirdetmény típusa:'] :
             continue
         if '2-es minta' in notice_attributes['Hirdetmény típusa:'] :
+            continue
+        if 'helyesbítés' in notice_attributes['Hirdetmény típusa:'].lower() :
             continue
         notice_attributes_all.update(notice_attributes)
         
