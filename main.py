@@ -83,8 +83,16 @@ for link in pagelists:
             continue
         notice_attributes_all.update(notice_attributes)
         
+        #Fixing the the text in notice_attributes_all. replace new line with ', '
+        for k, value in notice_attributes_all.items():
+            #In case of the replace function doesn't work, don't do anything
+            try:
+                value=value.replace('\n',', ')
+            except AttributeError:
+                continue
+            notice_attributes_all.update({k: value})
+        
         #Ajánlatkérő
-        notice_attributes_all['Ajánlakérő:'] =""
         length_name_start= notice_page.find('I.1) Név és címek')
         length_name_end = notice_page.find('I.2) Közös közbeszerzés')
         if length_name_end ==-1 :
