@@ -84,7 +84,7 @@ for link in pagelists:
         notice_attributes_all.update(notice_attributes)
         
         #Ajánlatkérő
-        notice_attributes['Ajánlakérő:'] ={}
+        notice_attributes_all['Ajánlakérő:'] =""
         length_name_start= notice_page.find('I.1) Név és címek')
         length_name_end = notice_page.find('I.2) Közös közbeszerzés')
         if length_name_end ==-1 :
