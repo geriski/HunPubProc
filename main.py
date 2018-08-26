@@ -10,8 +10,8 @@ link1= 'http://www.kozbeszerzes.hu/adatbazis/megtekint/hirdetmeny/portal_'
 id_list=[]
 #for num in range(1,3):
 #    pagelists.append(str(link1) + str(num+5950) + '_2018/')
-for numb in range(1,500):
-    id_list.append(str(numb+3210) + '/2018')
+for numb in range(1,1000):
+    id_list.append(str(numb+1000) + '/2018')
 
 #print(pagelists)
 
@@ -71,10 +71,10 @@ for link in pagelists:
                 length_name_end = notice_page[length_name_find+7:].find('target="')
                 tree_name_string = notice_page[length_name_find+length_name_start+6:length_name_find+length_name_end+5]
                 notice_attributes[notice_table_name] =  tree_name_string
-        if notice_attributes['Beszerzés tárgya:'] == 'Szolgáltatásmegrendelés' :
-            continue
-        if 'Árubeszerzés' in notice_attributes['Beszerzés tárgya:']:
-            continue
+        #if notice_attributes['Beszerzés tárgya:'] == 'Szolgáltatásmegrendelés' :
+        #    continue
+        #if 'Árubeszerzés' in notice_attributes['Beszerzés tárgya:']:
+        #    continue
         if 'módosítás' in notice_attributes['Hirdetmény típusa:'].lower()  :
             continue
         if 'Bírósági határozat' in notice_attributes['Hirdetmény típusa:'] :
@@ -197,7 +197,79 @@ for link in pagelists:
         else:
           notice_attributes_all['Szerződés megkötés dátuma'] = None
           notice_attributes_all['Nyertes'] = None
+        try:
+            notice_attributes_all[' II.1.1) Elnevezés: '] = notice_attributes_all[' II.1.1) ']
+        except KeyError:
+            x=1
+        else:
+            del notice_attributes_all[' II.1.1) ']
+        try:
+            notice_attributes_all[' II.1.1) Elnevezés: '] = notice_attributes_all[' Elnevezés: ']
+        except KeyError:
+            x=1
+        else:
+            del notice_attributes_all[' Elnevezés: ']
+        try:
+            notice_attributes_all[' II.1.4) A közbeszerzés rövid ismertetése: '] = notice_attributes_all[' II.1.4) Rövid meghatározás: ']
+        except KeyError:
+            x=1
+        else:
+            del notice_attributes_all[' II.1.4) Rövid meghatározás: ']
+        try:
+            notice_attributes_all[' II.1.5) Részekre bontás '] = notice_attributes_all[' II.1.6) Részekre vonatkozó információk ']
+        except KeyError:
+            x=1
+        else:
+            del notice_attributes_all[' II.1.6) Részekre vonatkozó információk ']
+        try:
+            notice_attributes_all[' II.1.6) A beszerzés végleges összértéke (ÁFA nélkül) '] = notice_attributes_all[' II.1.7) A beszerzés végleges összértéke (áfa nélkül) ']
+        except KeyError:
+            x=1
+        else:
+            del notice_attributes_all[' II.1.7) A beszerzés végleges összértéke (áfa nélkül) ']
+        try:
+            notice_attributes_all[' II.1.4) A közbeszerzés rövid ismertetése: '] = notice_attributes_all[' II.2.4) A közbeszerzés ismertetése: ']
+        except KeyError:
+            x=1
+        else:
+            del notice_attributes_all[' II.2.4) A közbeszerzés ismertetése: ']
+        try:
+            notice_attributes_all[' II.2.9) További információ: '] = notice_attributes_all[' II.2.14) További információ: ']
+        except KeyError:
+            x=1
+        else:
+            del notice_attributes_all[' II.2.14) További információ: ']
+        to_delete =[' (éééé/hh/nn) ',' Árubeszerzés ', ' Építési beruházás ',' II.1.2) ',' II.1.2) Fő CPV-kód: ', ' II.1.3) A szerződés típusa ', ' II.1.3) A szerződés típusa Szolgáltatásmegrendelés ', ' II.1.5) ', ' II.1.5) Becsült teljes érték vagy nagyságrend: ', ' II.1.6) Részekre bontás ', ' II.2.1) ', ' II.2.1) Elnevezés: ', ' II.2.10) Opciókra vonatkozó információ ', ' II.2.11) Opciókra vonatkozó információ ', ' II.2.13) További információ ', ' II.2.6) Becsült érték: ',' II.2.6) Becsült teljes érték vagy nagyságrend: ', ' II.2.9) Változatokra (alternatív ajánlatokra) vonatkozó információk ']
+        
+        for to_dele in to_delete:
+            try:
+                del notice_attributes_all[to_dele]
+            except KeyError:
+                y=1
+        try:
+            notice_attributes_all['Beszerzés összege'] = notice_attributes_all[' II.1.6) A beszerzés végleges összértéke (ÁFA nélkül) '][0]
+            notice_attributes_all['Beszerzés pénzneme'] = notice_attributes_all[' II.1.6) A beszerzés végleges összértéke (ÁFA nélkül) '][-1]
+        except (KeyError, IndexError):
+                y=1
+        
+        try:
+            notice_attributes_all['Beszerzés összege'] = notice_attributes_all[' ) '][0]
+            notice_attributes_all['Beszerzés pénzneme'] = notice_attributes_all[' ) '][-1]
+        except (KeyError, IndexError):
+            x=1
+        else:
+            del notice_attributes_all[' ) ']
+        try:
+            notice_attributes_all['Beszerzés összege']=notice_attributes_all['Beszerzés összege'].replace('.','')
+            notice_attributes_all['Beszerzés összege']=notice_attributes_all['Beszerzés összege'].replace(',','')
+            notice_attributes_all['Beszerzés összege']=notice_attributes_all['Beszerzés összege'].replace('-','')
+            notice_attributes_all['Beszerzés összege']=notice_attributes_all['Beszerzés összege'].replace(' ','')
+            notice_attributes_all['Beszerzés összege']=notice_attributes_all['Beszerzés összege'].replace('Ft','')
+        except KeyError:
+            x=1
+        
         notice[notice_attributes['Iktatószám:']] = notice_attributes_all
+       
         print('Ready to export: ', notice_attributes['Iktatószám:'])
     else:
       continue
