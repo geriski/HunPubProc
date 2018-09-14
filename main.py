@@ -10,8 +10,8 @@ link1= 'http://www.kozbeszerzes.hu/adatbazis/megtekint/hirdetmeny/portal_'
 id_list=[]
 #for num in range(1,3):
 #    pagelists.append(str(link1) + str(num+5950) + '_2018/')
-for numb in range(1,2000):
-    id_list.append(str(numb+2000) + '/2018')
+for numb in range(1,50):
+    id_list.append(str(numb+1070) + '/2018')
 
 #print(pagelists)
 
@@ -71,10 +71,10 @@ for link in pagelists:
                 length_name_end = notice_page[length_name_find+7:].find('target="')
                 tree_name_string = notice_page[length_name_find+length_name_start+6:length_name_find+length_name_end+5]
                 notice_attributes[notice_table_name] =  tree_name_string
-        #if notice_attributes['Beszerzés tárgya:'] == 'Szolgáltatásmegrendelés' :
-        #    continue
-        #if 'Árubeszerzés' in notice_attributes['Beszerzés tárgya:']:
-        #    continue
+        if notice_attributes['Beszerzés tárgya:'] == 'Szolgáltatásmegrendelés' :
+            continue
+        if 'Árubeszerzés' in notice_attributes['Beszerzés tárgya:']:
+            continue
         if 'módosítás' in notice_attributes['Hirdetmény típusa:'].lower()  :
             continue
         if 'Bírósági határozat' in notice_attributes['Hirdetmény típusa:'] :
@@ -83,6 +83,9 @@ for link in pagelists:
             continue
         if 'helyesbítés' in notice_attributes['Hirdetmény típusa:'].lower() :
             continue
+        if 'Árubeszerzés' in notice_attributes['Teljesítés helye:']:
+            continue 
+        
         notice_attributes_all.update(notice_attributes)
         
         #Fixing the the text in notice_attributes_all. replace new line with ', '
@@ -153,40 +156,41 @@ for link in pagelists:
         notice_attributes_all.update(subject)
         
         #alkalmassági kritériumok
-        alkalmassag={}
-        alkalmassag_kod_valtoz =[]
-        alkalmassag_kodok = ['TT','TK','TKö','TV','TE','TH','É','BÉ','ÉKM','K','KÉ','KÉ-VA','KÉ-VK','KÉ-VV','KÉ-K','KÉ-KK','KÉ-L','KÉ-LK','KÉ-HA','KÉ-HK','HI','HI-V','HI-VN','VZ','VZ-TEL','VZ-TER','VZ-VKG','B','GO','EN','EN-HŐ','EN-VI','EN-ME','EN-A','HT','T','T-É','G','G-ÉF','V','GT','ME-É','ME-M','ME-G','ME-V','ME-KÉ','ME-KÉ-VV','ME-HI','ME-HI-TÉ','ME-HI-TV','ME-VZ','ME-B','ME-GO','ME-EN','ME-EN-VEM','E-EN-TH','ME-EN-VI','ME-EN-A','MV-É','MV-É-R','MV-É-M','MV-M','MV-ÉG','MV-ÉG-R','MV-ÉV','MV-ÉV-R','MV-KÉ','MV-KÉ-R','MV-VV','MV-VV-R','MV-TE','MV-TE-R','MV-TV','MV-TV-R','MV-VZ','MV-VZ-R','MV-B','MV-B-R','MV-GO','MV-GO-R','MV-EN','MV-EN-R','MV-EN-A','MV-TH','MV-TH-R','MV-VI','MV-VI-R']
-        for alkalmassag_kod in alkalmassag_kodok:
-            alkalmassag_kod_valtoz.append(" " + alkalmassag_kod+ " ")
-            alkalmassag_kod_valtoz.append(" " + alkalmassag_kod+ ")")
-            alkalmassag_kod_valtoz.append("(" + alkalmassag_kod+ " ")
-            alkalmassag_kod_valtoz.append("(" + alkalmassag_kod+ ")")
-            alkalmassag_kod_valtoz.append("(" + alkalmassag_kod.title()+ ")")
-            alkalmassag_kod_valtoz.append(" " + alkalmassag_kod.title()+ " ")
-            alkalmassag_kod_valtoz.append(" " + alkalmassag_kod.title()+ ")")
-            alkalmassag_kod_valtoz.append("(" + alkalmassag_kod.title()+ " ")
-        length_name_start= notice_page.find('III.1.3)')
-        length_name_end = notice_page.find('III.1.4)')
-        if length_name_end ==-1 :
-            length_name_end = notice_page.find('IV. szakasz')
-        
-        sub_tree_string = notice_page[length_name_start:length_name_end]
-        
-        parser = etree.HTMLParser()
-        sub_tree   = etree.parse(StringIO(sub_tree_string), parser)
-        alkalmassag_list = sub_tree.xpath('//span[@style="font-weight:200;color: #336699;"]/text()')
-        for alkalmassag_text in alkalmassag_list:
-            for code in alkalmassag_kod_valtoz:
-                length_name_start= alkalmassag_text.find(code)
-                length_name_end = alkalmassag_text[length_name_start:].find('év')
-                if length_name_start ==-1 :
-                    x=1
-                else:
-                    ev = alkalmassag_text[length_name_start+length_name_end-2:length_name_start+length_name_end-1]
-                    if ev.isdigit():
-                        alkalmassag[code] = ev    
-        
-        notice_attributes_all.update(alkalmassag)
+        if notice_page.find('III.1.3)') != -1:
+            alkalmassag={}
+            alkalmassag_kod_valtoz =[]
+            alkalmassag_kodok = ['TT','TK','TKö','TV','TE','TH','É','BÉ','ÉKM','K','KÉ','KÉ-VA','KÉ-VK','KÉ-VV','KÉ-K','KÉ-KK','KÉ-L','KÉ-LK','KÉ-HA','KÉ-HK','HI','HI-V','HI-VN','VZ','VZ-TEL','VZ-TER','VZ-VKG','B','GO','EN','EN-HŐ','EN-VI','EN-ME','EN-A','HT','T','T-É','G','G-ÉF','V','GT','ME-É','ME-M','ME-G','ME-V','ME-KÉ','ME-KÉ-VV','ME-HI','ME-HI-TÉ','ME-HI-TV','ME-VZ','ME-B','ME-GO','ME-EN','ME-EN-VEM','E-EN-TH','ME-EN-VI','ME-EN-A','MV-É','MV-É-R','MV-É-M','MV-M','MV-ÉG','MV-ÉG-R','MV-ÉV','MV-ÉV-R','MV-KÉ','MV-KÉ-R','MV-VV','MV-VV-R','MV-TE','MV-TE-R','MV-TV','MV-TV-R','MV-VZ','MV-VZ-R','MV-B','MV-B-R','MV-GO','MV-GO-R','MV-EN','MV-EN-R','MV-EN-A','MV-TH','MV-TH-R','MV-VI','MV-VI-R']
+            for alkalmassag_kod in alkalmassag_kodok:
+                alkalmassag_kod_valtoz.append(" " + alkalmassag_kod+ " ")
+                alkalmassag_kod_valtoz.append(" " + alkalmassag_kod+ ")")
+                alkalmassag_kod_valtoz.append("(" + alkalmassag_kod+ " ")
+                alkalmassag_kod_valtoz.append("(" + alkalmassag_kod+ ")")
+                alkalmassag_kod_valtoz.append("(" + alkalmassag_kod.title()+ ")")
+                alkalmassag_kod_valtoz.append(" " + alkalmassag_kod.title()+ " ")
+                alkalmassag_kod_valtoz.append(" " + alkalmassag_kod.title()+ ")")
+                alkalmassag_kod_valtoz.append("(" + alkalmassag_kod.title()+ " ")
+            length_name_start= notice_page.find('III.1.3)')
+            length_name_end = notice_page.find('III.1.4)')
+            if length_name_end ==-1 :
+                length_name_end = notice_page.find('IV. szakasz')
+            
+            sub_tree_string = notice_page[length_name_start:length_name_end]
+            
+            parser = etree.HTMLParser()
+            sub_tree   = etree.parse(StringIO(sub_tree_string), parser)
+            alkalmassag_list = sub_tree.xpath('//span[@style="font-weight:200;color: #336699;"]/text()')
+            for alkalmassag_text in alkalmassag_list:
+                for code in alkalmassag_kod_valtoz:
+                    length_name_start= alkalmassag_text.find(code)
+                    length_name_end = alkalmassag_text[length_name_start:].find('év')
+                    if length_name_start ==-1 :
+                        x=1
+                    else:
+                        ev = alkalmassag_text[length_name_start+length_name_end-2:length_name_start+length_name_end-1]
+                        if ev.isdigit():
+                            alkalmassag[code] = ev    
+            
+            notice_attributes_all['Alkalmassági kirtériumok'] = alkalmassag
         #megkötés dátuma
         if notice_page.find('V.2.1) A szerződés megkötésének dátuma') != -1:
           length_name_start= notice_page.find('V.2.1) A szerződés megkötésének dátuma')
