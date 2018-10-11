@@ -10,8 +10,8 @@ link1= 'http://www.kozbeszerzes.hu/adatbazis/megtekint/hirdetmeny/portal_'
 id_list=[]
 #for num in range(1,3):
 #    pagelists.append(str(link1) + str(num+5950) + '_2018/')
-for numb in range(1,50):
-    id_list.append(str(numb+1070) + '/2018')
+for numb in range(1,150):
+    id_list.append(str(numb+1120) + '/2018')
 
 #print(pagelists)
 
@@ -307,7 +307,97 @@ for link in pagelists:
         except KeyError:
             x=1
         
-        notice[notice_attributes['Iktatószám:']] = notice_attributes_all
+        #eval_crit_list = {'Többlet tapasztalat':alkalmassag_kod_valtoz}
+        #eval_crit_people ={'Munkanélküli':'munkanélküli','Közfoglalkoztatott':'közfoglalkoztatott','Hátrányos helyzetű munkavállaló':'hátrányos'}
+        #eval_crit_warr = {'Jótállás':'jótállás'}
+        eval_crit_boolean = {'Környezetvédelem':'környezetvédelem',
+                             'Fenntarthatóság':'fenntarthatóság',
+                             'Örökség':'örökség',
+                             'Vízminőség':'vízminőség',
+                             'Természet':'természet',
+                             'Táj':'táj',
+                             'Kötbér':'kötbér',
+                             'Munkanélküli':'munkanélküli',
+                             'Közfoglalkoztatott':'közfoglalkoztatott',
+                             'Hátrányos helyzetű munkavállaló':'hátrányos',
+                             'Teljesítési határidő':'teljesítési határidő'}
+        
+        ertekeles = {}
+        eval_crit_exp = {}
+        eval_crit_boo = {}
+        eval_crit_warr = {}
+        ertekeles_corr =[]
+
+        try:
+            if notice_attributes_all[' II.2.5) Értékelési szempontok '] != None:
+                x = 1
+        except KeyError:
+            notice_attributes_all[' II.2.5) Értékelési szempontok '] = ['Nincs']
+        else:
+            for eval_text in notice_attributes_all[' II.2.5) Értékelési szempontok ']:
+            
+                eval_text_corr = eval_text.replace('\xa0',' ')
+                
+                ertekeles_corr.append(eval_text_corr)
+                
+            notice_attributes_all[' II.2.5) Értékelési szempontok '] = ertekeles_corr
+            for eval_text in notice_attributes_all[' II.2.5) Értékelési szempontok ']:
+                for code in alkalmassag_kod_valtoz:
+                    length_name_start= eval_text.find(code)
+                    length_name_end = eval_text[length_name_start:].find('hónap')
+                    if length_name_start ==-1 :
+                        x=1
+                    else:
+                        ev = eval_text[length_name_start+length_name_end-3:length_name_start+length_name_end-1]
+                        if ev.isdigit():
+                            eval_crit_exp[code] = ev 
+            ertekeles['Szakmai többlettapasztalat'] = eval_crit_exp   
+        
+            for k,v in  eval_crit_boolean.items():
+                for eval_text in notice_attributes_all[' II.2.5) Értékelési szempontok ']:
+                    if v in eval_text.lower():
+                        eval_crit_boo[k]= True
+                    
+            
+            ertekeles.update(eval_crit_boo)
+            
+            for eval_text in notice_attributes_all[' II.2.5) Értékelési szempontok ']:
+                
+                    length_name_start= eval_text.lower().find('jótállás')
+                    length_name_end = eval_text[length_name_start:].find('hónap')
+                    if length_name_start ==-1 :
+                        x=1
+                    else:
+                        ev = eval_text[length_name_start+length_name_end-3:length_name_start+length_name_end-1]
+                        if ev.isdigit():
+                            eval_crit_warr['Jótállás'] = ev
+                        else:
+                            eval_crit_warr['Jótállás'] = 0
+            ertekeles.update(eval_crit_warr)             
+        
+        notice_attributes_all.update(ertekeles)
+        filter_parameters = ['Közbeszerzési Értesítő száma:', 'Beszerzés tárgya:', 'Eljárás fajtája:', 'Közzététel dátuma:','Iktatószám:','CPV Kód:','Ajánlatkérő:', 'Teljesítés helye:', 'Nyertes ajánlattevő:', 'Ajánlatkérő típusa:', 'Ajánlatkérő fő tevényeségi köre:', 'Letöltés:','Közbeszerzési eljárás:','Ajánlatkérő/  Nemzeti azonosítószám: ', 'Ajánlatkérő/  Város: ','Ajánlatkérő/  NUTS-kód: ', 'Ajánlatkérő/  Postai irányítószám: ', ' II.1.1) Elnevezés: ', ' II.1.4) A közbeszerzés rövid ismertetése: ',' II.2.3) A teljesítés helye: ', ' II.2.5) Értékelési szempontok ', ' II.2.8) Európai uniós alapokra vonatkozó információk ', 'Nyertes', 'Nyertes/  Város:', 'Nyertes/  NUTS-kód: ', 'Nyertes/  Postai irányítószám: ', 'Nyertes/  A nyertes ajánlattevő adószáma (adóazonosító jele): ', 'Beszerzés összege', 'Beszerzés pénzneme', 'Alkalmassági kirtériumok','Környezetvédelem',
+                             'Fenntarthatóság',
+                             'Örökség',
+                             'Vízminőség',
+                             'Természet',
+                             'Táj',
+                             'Kötbér',
+                             'Munkanélküli',
+                             'Közfoglalkoztatott',
+                             'Hátrányos helyzetű munkavállaló','Jótállás', 'Szakmai többlettapasztalat',
+                             'Teljesítési határidő']
+        
+        notice_attributes_all_filtered ={}
+        for filter_parameter in filter_parameters:    
+    
+            for k, v in notice_attributes_all.items():
+                
+                if filter_parameter == k:
+                    notice_attributes_all_filtered[k] = v
+                
+        
+        notice[notice_attributes['Iktatószám:']] = notice_attributes_all_filtered
        
         print('Ready to export: ', notice_attributes['Iktatószám:'])
     else:
