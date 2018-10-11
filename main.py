@@ -10,8 +10,8 @@ link1= 'http://www.kozbeszerzes.hu/adatbazis/megtekint/hirdetmeny/portal_'
 id_list=[]
 #for num in range(1,3):
 #    pagelists.append(str(link1) + str(num+5950) + '_2018/')
-for numb in range(1,150):
-    id_list.append(str(numb+1120) + '/2018')
+for numb in range(1,400):
+    id_list.append(str(numb+9110) + '/2018')
 
 #print(pagelists)
 
@@ -36,7 +36,7 @@ for items in download_notices:
 notice = {}
 for link in pagelists:
     notice_page = requests.get(link)
-    tree = html.fromstring(notice_page.content)
+    tree = html.fromstring(notice_page.content) 
     notice_attributes = {}
     notice_attributes_all = {}
 
@@ -178,17 +178,22 @@ for link in pagelists:
             
             parser = etree.HTMLParser()
             sub_tree   = etree.parse(StringIO(sub_tree_string), parser)
-            alkalmassag_list = sub_tree.xpath('//span[@style="font-weight:200;color: #336699;"]/text()')
-            for alkalmassag_text in alkalmassag_list:
-                for code in alkalmassag_kod_valtoz:
-                    length_name_start= alkalmassag_text.find(code)
-                    length_name_end = alkalmassag_text[length_name_start:].find('év')
-                    if length_name_start ==-1 :
-                        x=1
-                    else:
-                        ev = alkalmassag_text[length_name_start+length_name_end-2:length_name_start+length_name_end-1]
-                        if ev.isdigit():
-                            alkalmassag[code] = ev    
+            try:
+                alkalmassag_list = sub_tree.xpath('//span[@style="font-weight:200;color: #336699;"]/text()')
+            except AssertionError:
+                alkalmassag = 'Nincs'
+            else:
+                
+                for alkalmassag_text in alkalmassag_list:
+                    for code in alkalmassag_kod_valtoz:
+                        length_name_start= alkalmassag_text.find(code)
+                        length_name_end = alkalmassag_text[length_name_start:].find('év')
+                        if length_name_start ==-1 :
+                            x=1
+                        else:
+                            ev = alkalmassag_text[length_name_start+length_name_end-2:length_name_start+length_name_end-1]
+                            if ev.isdigit():
+                                alkalmassag[code] = ev    
             
             notice_attributes_all['Alkalmassági kirtériumok'] = alkalmassag
         #megkötés dátuma
