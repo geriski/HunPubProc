@@ -10,8 +10,8 @@ link1= 'http://www.kozbeszerzes.hu/adatbazis/megtekint/hirdetmeny/portal_'
 id_list=[]
 #for num in range(1,3):
 #    pagelists.append(str(link1) + str(num+5950) + '_2018/')
-for numb in range(1,400):
-    id_list.append(str(numb+9110) + '/2018')
+for numb in range(1,800):
+    id_list.append(str(numb+24810) + '/2018')
 
 #print(pagelists)
 
@@ -34,6 +34,18 @@ for items in download_notices:
     num= int(items[:items.find('/')])
     pagelists.append(str(link1) + str(num) + '_2018/')
 notice = {}
+
+alkalmassag_kod_valtoz =[]
+alkalmassag_kodok = ['TT','TK','TKö','TV','TE','TH','É','BÉ','ÉKM','K','KÉ','KÉ-VA','KÉ-VK','KÉ-VV','KÉ-K','KÉ-KK','KÉ-L','KÉ-LK','KÉ-HA','KÉ-HK','HI','HI-V','HI-VN','VZ','VZ-TEL','VZ-TER','VZ-VKG','B','GO','EN','EN-HŐ','EN-VI','EN-ME','EN-A','HT','T','T-É','G','G-ÉF','V','GT','ME-É','ME-M','ME-G','ME-V','ME-KÉ','ME-KÉ-VV','ME-HI','ME-HI-TÉ','ME-HI-TV','ME-VZ','ME-B','ME-GO','ME-EN','ME-EN-VEM','E-EN-TH','ME-EN-VI','ME-EN-A','MV-É','MV-É-R','MV-É-M','MV-M','MV-ÉG','MV-ÉG-R','MV-ÉV','MV-ÉV-R','MV-KÉ','MV-KÉ-R','MV-VV','MV-VV-R','MV-TE','MV-TE-R','MV-TV','MV-TV-R','MV-VZ','MV-VZ-R','MV-B','MV-B-R','MV-GO','MV-GO-R','MV-EN','MV-EN-R','MV-EN-A','MV-TH','MV-TH-R','MV-VI','MV-VI-R']
+for alkalmassag_kod in alkalmassag_kodok:
+    alkalmassag_kod_valtoz.append(" " + alkalmassag_kod+ " ")
+    alkalmassag_kod_valtoz.append(" " + alkalmassag_kod+ ")")
+    alkalmassag_kod_valtoz.append("(" + alkalmassag_kod+ " ")
+    alkalmassag_kod_valtoz.append("(" + alkalmassag_kod+ ")")
+    alkalmassag_kod_valtoz.append("(" + alkalmassag_kod.title()+ ")")
+    alkalmassag_kod_valtoz.append(" " + alkalmassag_kod.title()+ " ")
+    alkalmassag_kod_valtoz.append(" " + alkalmassag_kod.title()+ ")")
+    alkalmassag_kod_valtoz.append("(" + alkalmassag_kod.title()+ " ")
 for link in pagelists:
     notice_page = requests.get(link)
     tree = html.fromstring(notice_page.content) 
@@ -158,17 +170,7 @@ for link in pagelists:
         #alkalmassági kritériumok
         if notice_page.find('III.1.3)') != -1:
             alkalmassag={}
-            alkalmassag_kod_valtoz =[]
-            alkalmassag_kodok = ['TT','TK','TKö','TV','TE','TH','É','BÉ','ÉKM','K','KÉ','KÉ-VA','KÉ-VK','KÉ-VV','KÉ-K','KÉ-KK','KÉ-L','KÉ-LK','KÉ-HA','KÉ-HK','HI','HI-V','HI-VN','VZ','VZ-TEL','VZ-TER','VZ-VKG','B','GO','EN','EN-HŐ','EN-VI','EN-ME','EN-A','HT','T','T-É','G','G-ÉF','V','GT','ME-É','ME-M','ME-G','ME-V','ME-KÉ','ME-KÉ-VV','ME-HI','ME-HI-TÉ','ME-HI-TV','ME-VZ','ME-B','ME-GO','ME-EN','ME-EN-VEM','E-EN-TH','ME-EN-VI','ME-EN-A','MV-É','MV-É-R','MV-É-M','MV-M','MV-ÉG','MV-ÉG-R','MV-ÉV','MV-ÉV-R','MV-KÉ','MV-KÉ-R','MV-VV','MV-VV-R','MV-TE','MV-TE-R','MV-TV','MV-TV-R','MV-VZ','MV-VZ-R','MV-B','MV-B-R','MV-GO','MV-GO-R','MV-EN','MV-EN-R','MV-EN-A','MV-TH','MV-TH-R','MV-VI','MV-VI-R']
-            for alkalmassag_kod in alkalmassag_kodok:
-                alkalmassag_kod_valtoz.append(" " + alkalmassag_kod+ " ")
-                alkalmassag_kod_valtoz.append(" " + alkalmassag_kod+ ")")
-                alkalmassag_kod_valtoz.append("(" + alkalmassag_kod+ " ")
-                alkalmassag_kod_valtoz.append("(" + alkalmassag_kod+ ")")
-                alkalmassag_kod_valtoz.append("(" + alkalmassag_kod.title()+ ")")
-                alkalmassag_kod_valtoz.append(" " + alkalmassag_kod.title()+ " ")
-                alkalmassag_kod_valtoz.append(" " + alkalmassag_kod.title()+ ")")
-                alkalmassag_kod_valtoz.append("(" + alkalmassag_kod.title()+ " ")
+
             length_name_start= notice_page.find('III.1.3)')
             length_name_end = notice_page.find('III.1.4)')
             if length_name_end ==-1 :
